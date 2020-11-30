@@ -37,7 +37,8 @@ export default {
           {
             // from: accounts[0],
             from: "0x90F8bf6A479f320ead074411a4B0e7944Ea8c9C1",
-            gasPrice: "200000000000", // default gas price in wei, 20 gwei in this case
+            gasPrice: 20000000000, // default gas price in wei, 20 gwei in this case,
+            gasLimit: 210000,
           }
         );
         myContract.methods
