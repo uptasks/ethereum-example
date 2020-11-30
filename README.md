@@ -38,3 +38,9 @@ npm test
 ### Test network
 
      ganache-cli -d --db /home/felix/Projects/freelance/ganache/ -i 123456
+
+
+## Updating TailwindCSS
+
+    npx tailwindcss-cli@latest build -o static/tailwind.css
+    
