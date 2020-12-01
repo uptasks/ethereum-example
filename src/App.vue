@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import contractJson from "./../build/contracts/DocuSign.json";
+import contractJson from "./../build/contracts/DecentraDocuSign.json";
 import Web3 from "web3";
 import SideBar from "./components/SideBar.vue";
 export default {
@@ -38,7 +38,7 @@ export default {
           console.log("addr", accounts);
           var myContract = new window.web3.eth.Contract(
             contractJson.abi,
-            "0x20eb4c017f58481abe833f6ad2f732a3e1d6a085",
+            "0xf32E0eB1795746757232e240FC8b7EE23E678fb4",
             {
               from: accounts[0],
               gasPrice: 20000000000,
