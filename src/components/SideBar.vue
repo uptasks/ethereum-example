@@ -6,9 +6,17 @@
         v-for="(menu, $index) in menus" 
         :key="$index">
         <router-link
-          :to="{name: menu.link}"
+          v-if="menu.linkType == 'internal'"
+          :to="{ name: menu.link }"
           class="px-4 py-2 block text-gray-600 font-semibold hover:bg-gray-100"
         >{{ menu.title }}</router-link
+        >
+        <a
+          v-if="menu.linkType == 'external'"
+          :href="menu.link"
+          class="px-4 py-2 block text-gray-600 font-semibold hover:bg-gray-100"
+          target="_blank"
+        >{{ menu.title }}</a
         >
       </li>
     </ul>
@@ -21,10 +29,15 @@ export default {
   data() {
     return {
       menus: [
-        { title: "Add Document", link: "AddDocument" },
-        { title: "Documents", link: "Documents" },
-        { title: "Signed", link: "Signed" },
-        { title: "Network", link: "Network" },
+        { title: "Add Document", linkType: "internal", link: "AddDocument" },
+        { title: "Documents", linkType: "internal", link: "Documents" },
+        // { title: "Signed", linkType: "internal", link: "Signed" },
+        {
+          title: "Network",
+          linkType: "external",
+          link:
+            "https://goerli.etherscan.io/address/0x20eb4c017f58481abe833f6ad2f732a3e1d6a085",
+        },
       ],
     };
   },

@@ -6,7 +6,7 @@
       <side-bar />
     </div>
     <div class="flex-1 ml-56 min-h-screen">
-      <router-view />
+      <router-view v-if="$store.getters.getContract" />
     </div>
   </div>
 </template>
