@@ -1,6 +1,6 @@
 <template>
   <div class="side-bar">
-    <div class="text-center py-4 font-semibold">DecentraWS</div>
+    <div class="text-center py-4 font-semibold">DocuSign</div>
     <ul class="my-4">
       <li 
         v-for="(menu, $index) in menus" 
@@ -21,11 +21,11 @@ export default {
   data() {
     return {
       menus: [
-        { title: "Services", link: "Services" },
-        { title: "Assigned", link: "Assigned" },
-        { title: "In Progress", link: "InProgress" },
-        { title: "Completed", link: "Completed" },
-        { title: "Users", link: "Users" },
+        { title: "Add Document", link: "AddDocument" },
+        { title: "Documents", link: "Documents" },
+        { title: "Action Needed", link: "ActionNeeded" },
+        { title: "Signed", link: "Signed" },
+        { title: "Network", link: "Network" },
       ],
     };
   },
