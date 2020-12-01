@@ -1,7 +1,7 @@
 <template>
   <div 
     v-if="document" 
-    class="document-review flex flex-col p-6">
+    class="document-review flex flex-col p-6 overflow-hidden h-screen">
     <div class="flex-1 flex flex-col py-4 space-y-4 bg-white rounded shadow">
       <div class="flex px-6 justify-between">
         <div class="font-semibold">Owner</div>
@@ -40,7 +40,8 @@
         :src="documentPath"
         type="application/pdf"
         width="100%"
-        height="100%"
+        height="100vh"
+        class="h-screen"
       >
     </div>
 
