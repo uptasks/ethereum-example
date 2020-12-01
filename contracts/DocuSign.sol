@@ -6,10 +6,6 @@ contract DocuSign {
     address public owner;
     uint public numOfDocuments=0;
     
-    struct Account {
-        address owner;
-        string ext_identifier_url;
-    }
     
     enum Status {
         PENDING,
@@ -18,12 +14,12 @@ contract DocuSign {
     }
     
     struct Signer {
-        Account account;
+        address account;
         Status status;
     }
     
     struct Document {
-        mapping(address=>Account) publisher;
+        address publisher;
         mapping(address => Signer) signers;
         string path;
         uint expectedSignatures;
@@ -31,7 +27,7 @@ contract DocuSign {
     }
     
     mapping(uint=>Document) public documents;
-    mapping(address=>Account) public accounts;
+    mapping(uint=>address) public publishers;
     
     modifier isOwner {
         require(owner==msg.sender, "Only owner can perform this action");
@@ -46,38 +42,39 @@ contract DocuSign {
         owner = msg.sender;
     }
     
-    function register(string memory _ext_identifier_url) public {
-        accounts[msg.sender]=Account({owner: msg.sender, ext_identifier_url: _ext_identifier_url});
-    }
     
     function addDocument(string memory _path, address[] memory _signers) public {
         require(bytes(_path).length > 0, "Path is required");
         require(_signers.length > 0, "Signers list is required");
         
-        Account memory publisher_account = accounts[msg.sender];
-        
         Document storage document = documents[numOfDocuments];
-        document.publisher[msg.sender] = publisher_account;
+        document.publisher = msg.sender;
         document.path = _path;
         document.expectedSignatures = _signers.length;
         numOfDocuments = numOfDocuments + 1;
         
         for (uint i = 0; i < _signers.length; i++) {
-            Account memory account = accounts[_signers[i]];
-            document.signers[_signers[i]]=Signer({account: account, status: Status.PENDING});
+            document.signers[_signers[i]]=Signer({account: _signers[i], status: Status.PENDING});
         }
     }
     
-    function addSigner(uint _documentID) public isOwner {
+    function addSigner(uint _documentID, address _new_signer_addr) public {
+        Document storage document = documents[_documentID];
+        require(document.publisher == msg.sender, "Only document owner can perform this action");
+        require(document.expectedSignatures > document.signatureCounts, "Signing of the document already completed");
         
+        document.signers[_new_signer_addr]=Signer({account: _new_signer_addr, status: Status.PENDING});
     }
-     function removeSigner(uint _documentID) public isOwner {
-        
+     function removeSigner(uint _documentID, address _addr_to_remove) public  {
+        Document storage document = documents[_documentID];
+        require(document.publisher == msg.sender, "Only document owner can perform this action");
+        require(document.expectedSignatures > document.signatureCounts, "Signing of the document already completed");
+        delete document.signers[_addr_to_remove];
     }
     
     function approve(uint _documentID) public {
         Document storage document = documents[_documentID];
-        require(document.signers[msg.sender].account.owner == msg.sender, "Not allowed signer");
+        require(document.signers[msg.sender].account == msg.sender, "Not allowed signer");
         require(document.signers[msg.sender].status == Status.PENDING, "You have already performed action on the document");
         require(document.expectedSignatures > document.signatureCounts, "All actions already taken on document");
         document.signers[msg.sender].status = Status.APPROVE;
@@ -91,7 +88,7 @@ contract DocuSign {
     
     function decline(uint _documentID) public {
         Document storage document = documents[_documentID];
-        require(document.signers[msg.sender].account.owner == msg.sender, "Not allowed signer");
+        require(document.signers[msg.sender].account == msg.sender, "Not allowed signer");
         require(document.signers[msg.sender].status == Status.PENDING, "You have already performed action on the document");
         require(document.expectedSignatures > document.signatureCounts, "All actions already taken on document");
         document.signers[msg.sender].status = Status.DECLINED;
