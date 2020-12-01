@@ -1,17 +1,15 @@
 <template>
-  <div 
-    v-if="document" 
-    class="document-review flex flex-col p-6 overflow-hidden h-screen">
+  <div class="document-review flex flex-col p-6 overflow-hidden h-screen">
     <div class="flex-1 flex flex-col py-4 space-y-4 bg-white rounded shadow">
       <div class="flex px-6 justify-between">
         <div class="font-semibold">Owner</div>
         <div class="">
           <a
-            :href="'https://goerli.etherscan.io/address/' + document.publisher"
+            :href="'https://goerli.etherscan.io/address/' + owner"
             class="text-blue-500"
             target="_blank"
           >
-            {{ document.publisher }}</a
+            {{ owner }}</a
             >
         </div>
       </div>
@@ -22,16 +20,19 @@
             :href="documentPath" 
             class="text-blue-500" 
             target="_blank">{{
-              document.path | truncate(80)
+              path | truncate(80)
             }}</a>
         </div>
       </div>
       <div class="flex px-6 justify-between">
-        <div class="font-semibold">Progress</div>
+        <div class="font-semibold">Completed</div>
         <div class="">
-          {{ document.signatureCounts }} of {{ document.expectedSignatures }}
+          {{ completed }}
         </div>
       </div>
+
+      <div>{{ signers }}</div>
+      <div>{{ signatures }}</div>
     </div>
 
     <!-- Embed Document -->
@@ -47,12 +48,18 @@
 
     <!-- Action panel -->
     <div class="fixed bottom-10 right-10 space-x-2">
-      <button 
-        class="px-4 py-2 bg-red-600 text-red-100 rounded shadow focus:outline-none" 
-        @click="decline">Reject</button>
-      <button 
-        class="px-4 py-2 bg-indigo-600 text-indigo-100 rounded shadow focus:outline-none" 
-        @click="approveDocument">Sign</button>
+      <button
+        class="px-4 py-2 bg-red-600 text-red-100 rounded shadow focus:outline-none"
+        @click="decline"
+      >
+        Reject
+      </button>
+      <button
+        class="px-4 py-2 bg-indigo-600 text-indigo-100 rounded shadow focus:outline-none"
+        @click="approve"
+      >
+        Sign
+      </button>
     </div>
   </div>
 </template>
@@ -62,7 +69,11 @@ export default {
   name: "Documents",
   data() {
     return {
-      document: "",
+      path: "",
+      owner: "",
+      completed: "",
+      signers: [],
+      signatures: [],
     };
   },
   computed: {
@@ -70,26 +81,67 @@ export default {
       return this.$route.params.id;
     },
     documentPath() {
-      return "http://ipfs.io/ipfs/" + this.document.path;
+      return "http://ipfs.io/ipfs/" + this.path;
     },
   },
   created() {
-    this.getDocument();
+    this.getDocumentDetails();
   },
   methods: {
-    getDocument() {
+    async getDocumentDetails() {
       let self = this;
       self.$store.getters.getContract.methods
-        .documents(this.documentID)
+        .document()
         .call()
         .then((res) => {
-          self.document = res;
+          self.path = res;
         });
+
+      self.$store.getters.getContract.methods
+        .owner()
+        .call()
+        .then((res) => {
+          self.owner = res;
+        });
+
+      self.$store.getters.getContract.methods
+        .completed()
+        .call()
+        .then((res) => {
+          self.completed = res;
+        });
+
+      let signersCount =
+        (await self.$store.getters.getContract.methods.signersCount().call()) ||
+        0;
+
+      for (let i = 0; i < signersCount; i++) {
+        self.$store.getters.getContract.methods
+          .signers(i)
+          .call()
+          .then((res) => {
+            self.signers.push(res);
+          });
+      }
+
+      for (let i = 0; i < signersCount; i++) {
+        self.$store.getters.getContract.methods
+          .signers(i)
+          .call()
+          .then((addr) => {
+            self.$store.getters.getContract.methods
+              .signatures(addr)
+              .call()
+              .then((signature) => {
+                self.signatures.push(signature);
+              });
+          });
+      }
     },
-    approveDocument() {
+    approve() {
       let self = this;
       self.$store.getters.getContract.methods
-        .approve(self.documentID)
+        .approve()
         .send({ from: self.$store.getters.getAccount })
         .on("receipt", function (res) {
           console.log("Signed", res);
@@ -98,7 +150,7 @@ export default {
     decline() {
       let self = this;
       self.$store.getters.getContract.methods
-        .decline(self.documentID)
+        .decline()
         .send({ from: self.$store.getters.getAccount })
         .on("receipt", function (res) {
           console.log("Declined", res);

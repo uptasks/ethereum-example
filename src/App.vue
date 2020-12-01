@@ -38,7 +38,7 @@ export default {
           console.log("addr", accounts);
           var myContract = new window.web3.eth.Contract(
             contractJson.abi,
-            "0xf32E0eB1795746757232e240FC8b7EE23E678fb4",
+            "0x6f6bff298e182882091b8d0ff40208d09ae96b62",
             {
               from: accounts[0],
               gasPrice: 20000000000,

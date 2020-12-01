@@ -24,7 +24,7 @@ contract DecentraDocuSign {
         string path;
     }
     
-    Document document;
+    Document public document;
     mapping(address=>Signature) public signatures;
     address[] public signers;
     
@@ -38,7 +38,7 @@ contract DecentraDocuSign {
     event DocumentApproved(string path, address peformed_by);
     event DocumentDeclined(string path, address peformed_by);
      
-    constructor(string memory _path, address[] memory _signers) public {
+    constructor(string memory _path, address[] memory _signers) payable public {
         owner = msg.sender;
         
         document = Document({path:_path});
