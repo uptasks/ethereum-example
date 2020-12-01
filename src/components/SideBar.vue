@@ -6,7 +6,7 @@
         v-for="(menu, $index) in menus" 
         :key="$index">
         <router-link
-          to="/"
+          :to="{name: menu.link}"
           class="px-4 py-2 block text-gray-600 font-semibold hover:bg-gray-100"
         >{{ menu.title }}</router-link
         >
@@ -23,7 +23,6 @@ export default {
       menus: [
         { title: "Add Document", link: "AddDocument" },
         { title: "Documents", link: "Documents" },
-        { title: "Action Needed", link: "ActionNeeded" },
         { title: "Signed", link: "Signed" },
         { title: "Network", link: "Network" },
       ],
