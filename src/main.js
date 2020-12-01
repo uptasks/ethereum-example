@@ -4,8 +4,10 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
+let VueTruncate = require('vue-truncate-filter')
 
 Vue.config.productionTip = false
+Vue.use(VueTruncate)
 
 /* eslint-disable no-new */
 new Vue({

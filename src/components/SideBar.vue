@@ -1,6 +1,6 @@
 <template>
   <div class="side-bar">
-    <div class="text-center py-4 font-semibold">DocuSign</div>
+    <div class="text-center py-4 font-semibold">Decentralized DocuSign</div>
     <ul class="my-4">
       <li 
         v-for="(menu, $index) in menus" 
@@ -9,6 +9,7 @@
           v-if="menu.linkType == 'internal'"
           :to="{ name: menu.link }"
           class="px-4 py-2 block text-gray-600 font-semibold hover:bg-gray-100"
+          active-class="bg-gray-100"
         >{{ menu.title }}</router-link
         >
         <a
