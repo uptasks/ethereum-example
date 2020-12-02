@@ -6,13 +6,12 @@
       <side-bar />
     </div>
     <div class="flex-1 ml-56 min-h-screen">
-      <router-view v-if="$store.getters.getContract" />
+      <router-view v-if="$store.getters.getAccount" />
     </div>
   </div>
 </template>
 
 <script>
-import contractJson from "./../build/contracts/DecentraDocuSign.json";
 import Web3 from "web3";
 import SideBar from "./components/SideBar.vue";
 export default {
@@ -35,18 +34,7 @@ export default {
         }
 
         self.getAccounts(window.web3).then(function (accounts) {
-          console.log("addr", accounts);
-          var myContract = new window.web3.eth.Contract(
-            contractJson.abi,
-            "0x6e64d4907ef54a09d95e903c089bc2f1628c237b",
-            {
-              from: accounts[0],
-              gasPrice: 20000000000,
-              gasLimit: 210000,
-            }
-          );
           self.$store.commit("setAccount", accounts[0]);
-          self.$store.commit("setContract", myContract);
         });
       });
     }

@@ -6,9 +6,8 @@ import DocumentReview from '@/components/DocumentReview'
 
 Vue.use(Router)
 
-export default new Router({
-  routes: [
-    {
+const router = new Router({
+  routes: [{
       path: '',
       name: 'AddDocument',
       component: AddDocument
@@ -19,9 +18,11 @@ export default new Router({
       component: Documents
     },
     {
-      path: '/documents/:id/review',
+      path: '/document/:hash',
       name: 'DocumentReview',
       component: DocumentReview
     }
   ]
 })
+
+export default router;

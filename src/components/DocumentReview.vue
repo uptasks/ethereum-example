@@ -1,5 +1,8 @@
 <template>
-  <div class="document-review flex flex-col p-6 overflow-hidden h-screen">
+  <div
+    v-if="contract"
+    class="document-review flex flex-col p-6 overflow-hidden h-screen"
+  >
     <div class="flex-1 flex flex-col py-4 space-y-4 bg-white rounded shadow">
       <div class="flex px-6 justify-between">
         <div class="font-semibold">Owner</div>
@@ -65,8 +68,9 @@
 </template>
 
 <script>
+import contractJson from "./../../build/contracts/DecentraDocuSign.json";
 export default {
-  name: "Documents",
+  name: "DocumentReview",
   data() {
     return {
       path: "",
@@ -74,37 +78,53 @@ export default {
       completed: "",
       signers: [],
       signatures: [],
+      contract: "",
     };
   },
   computed: {
-    documentID() {
-      return this.$route.params.id;
+    contractHash() {
+      return this.$route.params.hash;
     },
     documentPath() {
       return "http://ipfs.io/ipfs/" + this.path;
     },
   },
   created() {
-    this.getDocumentDetails();
+    this.loadContract();
+    if (this.contract) {
+      this.getDocumentDetails();
+    }
   },
   methods: {
+    loadContract() {
+      let self = this;
+      this.contract = new window.web3.eth.Contract(
+        contractJson.abi,
+        this.contractHash,
+        {
+          from: self.$store.getters.getAccount,
+          gasPrice: 20000000000,
+          gasLimit: 210000,
+        }
+      );
+    },
     async getDocumentDetails() {
       let self = this;
-      self.$store.getters.getContract.methods
+      self.contract.methods
         .document()
         .call()
         .then((res) => {
           self.path = res;
         });
 
-      self.$store.getters.getContract.methods
+      self.contract.methods
         .owner()
         .call()
         .then((res) => {
           self.owner = res;
         });
 
-      self.$store.getters.getContract.methods
+      self.contract.methods
         .completed()
         .call()
         .then((res) => {
@@ -112,11 +132,10 @@ export default {
         });
 
       let signersCount =
-        (await self.$store.getters.getContract.methods.signersCount().call()) ||
-        0;
+        (await self.contract.methods.signersCount().call()) || 0;
 
       for (let i = 0; i < signersCount; i++) {
-        self.$store.getters.getContract.methods
+        self.contract.methods
           .signers(i)
           .call()
           .then((res) => {
@@ -125,11 +144,11 @@ export default {
       }
 
       for (let i = 0; i < signersCount; i++) {
-        self.$store.getters.getContract.methods
+        self.contract.methods
           .signers(i)
           .call()
           .then((addr) => {
-            self.$store.getters.getContract.methods
+            self.contract.methods
               .signatures(addr)
               .call()
               .then((signature) => {
@@ -140,7 +159,7 @@ export default {
     },
     approve() {
       let self = this;
-      self.$store.getters.getContract.methods
+      self.contract.methods
         .approve()
         .send({ from: self.$store.getters.getAccount })
         .on("receipt", function (res) {
@@ -149,7 +168,7 @@ export default {
     },
     decline() {
       let self = this;
-      self.$store.getters.getContract.methods
+      self.contract.methods
         .decline()
         .send({ from: self.$store.getters.getAccount })
         .on("receipt", function (res) {

@@ -34,9 +34,13 @@
             </button>
           </div>
         </div>
+        <div class="my-2">
+          We've added 0.0001 Eth which is equivalent to $0.01 USD, as service
+          fee for us to continue maintaining this platform.
+        </div>
         <button
           class="px-4 py-2 bg-indigo-600 text-indigo-100 rounded shadow focus:outline-none"
-          @click="loadContract()"
+          @click="addDocumentAction()"
         >
           Add document
         </button>
@@ -47,6 +51,7 @@
 </template>
 
 <script>
+import contractJson from "./../../build/contracts/DecentraDocuSign.json";
 export default {
   name: "AddDocument",
   data() {
@@ -55,13 +60,14 @@ export default {
       signers: [],
       newSigner: "",
       ipfsNode: "",
+      contract: "",
     };
   },
   async created() {
     this.ipfsNode = await window.Ipfs.create();
   },
   async onBeforeUnmount() {
-    alert("Unmounting")
+    alert("Unmounting");
     await this.ipfsNode.stop();
   },
   methods: {
@@ -73,8 +79,8 @@ export default {
       if (!fileList.length) return;
       const fileDetails = {
         path: fileList[0].name,
-        content: fileList[0]
-      }
+        content: fileList[0],
+      };
       this.addToIPFS(fileDetails);
     },
     addSigner() {
@@ -82,18 +88,35 @@ export default {
       this.signers.unshift(this.newSigner);
       this.newSigner = "";
     },
-    loadContract() {
+    addDocumentAction() {
       let self = this;
       if (!self.documentPath) return alert("Document is required");
       if (self.signers.length == 0)
         return alert("Atleast one signer is required");
+
       let documentPath = self.documentPath.toString();
-      self.$store.getters.getContract.methods
-        .addDocument(documentPath, self.signers)
-        .send({ from: self.$store.getters.getAccount })
-        .on("receipt", function (res) {
-          console.log("Receipted", res);
-        });
+      const myContract = new window.web3.eth.Contract(contractJson.abi);
+      myContract
+        .deploy({
+          data: contractJson.bytecode,
+          arguments: [documentPath, self.signers],
+        })
+        .send(
+          {
+            value: 1000000000000000,
+            from: self.$store.getters.getAccount,
+            gas: 4700000,
+          },
+          (err, res) => {
+            if (err) {
+              console.err(err);
+            }
+            if (res) {
+              window.open("https://goerli.etherscan.io/tx/" + res, "_blank");
+              window.location.href = "/#/documents/";
+            }
+          }
+        );
     },
   },
 };
