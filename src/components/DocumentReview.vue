@@ -86,7 +86,7 @@
 
 <script>
 var FileSaver = require("file-saver");
-import { degrees, PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import contractJson from "./../../build/contracts/DecentraDocuSign.json";
 export default {
   name: "DocumentReview",
@@ -207,17 +207,39 @@ export default {
       const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
       const pages = pdfDoc.getPages();
-      const firstPage = pages[0];
+      for(let pageIndex =0; pageIndex<pages.length; pageIndex++){
+      const firstPage = pages[pageIndex];
       // eslint-disable-next-line no-unused-vars
       const { width, height } = firstPage.getSize();
-      firstPage.drawText("This text was added with JavaScript!", {
-        x: 5,
-        y: height / 2 + 300,
-        size: 50,
+      firstPage.drawText("Contract address "+this.contractHash, {
+        x: 25,
+        y: height - 50,
+        size: 16,
         font: helveticaFont,
-        color: rgb(0.95, 0.1, 0.1),
-        rotate: degrees(-45),
+        color: rgb(0.223,0.223,0.223),
       });
+      }
+
+      // Add signing page
+      const page = pdfDoc.addPage()
+  // eslint-disable-next-line no-unused-vars
+  const { width, height } = page.getSize()
+  const fontSize = 21
+  page.drawText('Signatures', {
+    x: 50,
+    y: height - 4 * fontSize,
+    size: fontSize,
+    font: helveticaFont,
+    color: rgb(0, 0.53, 0.71),
+  })
+
+  page.drawText(JSON.stringify(this.signatures), {
+    x: 50,
+    y: 50,
+    size: fontSize-5,
+    font: helveticaFont,
+    color:rgb(0.223,0.223,0.223),
+  })
 
       // eslint-disable-next-line no-unused-vars
       const pdfBytes = await pdfDoc.save();
