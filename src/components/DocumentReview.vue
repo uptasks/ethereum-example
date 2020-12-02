@@ -28,6 +28,17 @@
         </div>
       </div>
       <div class="flex px-6 justify-between">
+        <div class="font-semibold">Contract</div>
+        <div class="">
+          <a 
+            :href="documentPath" 
+            class="text-blue-500" 
+            target="_blank">{{
+              contractHash | truncate(80)
+            }}</a>
+        </div>
+      </div>
+      <div class="flex px-6 justify-between">
         <div class="font-semibold">Completed</div>
         <div class="">
           {{ completed }}

@@ -32,14 +32,21 @@ export default {
       menus: [
         { title: "New Document", linkType: "internal", link: "AddDocument" },
         { title: "Documents", linkType: "internal", link: "Documents" },
-        {
-          title: "Network",
-          linkType: "external",
-          link:
-            "https://goerli.etherscan.io/address/0x20eb4c017f58481abe833f6ad2f732a3e1d6a085",
-        },
       ],
     };
+  },
+  watch: {
+    "$store.getters.getAccount"(newVal) {
+      if (newVal) {
+        this.menus.push({
+          title: "My Txns",
+          linkType: "external",
+          link:
+            "https://goerli.etherscan.io/address/" +
+            this.$store.getters.getAccount,
+        });
+      }
+    },
   },
 };
 </script>
