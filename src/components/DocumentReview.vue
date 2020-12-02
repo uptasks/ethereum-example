@@ -64,6 +64,12 @@
     <div class="fixed bottom-10 right-10 space-x-2">
       <button
         class="px-4 py-2 bg-red-600 text-red-100 rounded shadow focus:outline-none"
+        @click="downloadSigned"
+      >
+        Download Signed
+      </button>
+      <button
+        class="px-4 py-2 bg-red-600 text-red-100 rounded shadow focus:outline-none"
         @click="decline"
       >
         Reject
@@ -79,6 +85,8 @@
 </template>
 
 <script>
+var FileSaver = require("file-saver");
+import { degrees, PDFDocument, rgb, StandardFonts } from "pdf-lib";
 import contractJson from "./../../build/contracts/DecentraDocuSign.json";
 export default {
   name: "DocumentReview",
@@ -185,6 +193,37 @@ export default {
         .on("receipt", function (res) {
           console.log("Declined", res);
         });
+    },
+    downloadSigned() {
+      this.modifyPdf();
+    },
+    async modifyPdf() {
+      const url = this.documentPath;
+      const existingPdfBytes = await fetch(url).then((res) =>
+        res.arrayBuffer()
+      );
+
+      const pdfDoc = await PDFDocument.load(existingPdfBytes);
+      const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+      const pages = pdfDoc.getPages();
+      const firstPage = pages[0];
+      // eslint-disable-next-line no-unused-vars
+      const { width, height } = firstPage.getSize();
+      firstPage.drawText("This text was added with JavaScript!", {
+        x: 5,
+        y: height / 2 + 300,
+        size: 50,
+        font: helveticaFont,
+        color: rgb(0.95, 0.1, 0.1),
+        rotate: degrees(-45),
+      });
+
+      // eslint-disable-next-line no-unused-vars
+      const pdfBytes = await pdfDoc.save();
+      const blob = new Blob([ pdfBytes ], { type: 'application/pdf' })
+      FileSaver.saveAs(blob, this.contractHash + ".pdf");
+      console.log(pdfBytes);
     },
   },
 };
