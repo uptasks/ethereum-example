@@ -30,9 +30,8 @@ export default {
   data() {
     return {
       menus: [
-        { title: "Add Document", linkType: "internal", link: "AddDocument" },
+        { title: "New Document", linkType: "internal", link: "AddDocument" },
         { title: "Documents", linkType: "internal", link: "Documents" },
-        // { title: "Signed", linkType: "internal", link: "Signed" },
         {
           title: "Network",
           linkType: "external",
