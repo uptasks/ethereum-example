@@ -35,7 +35,7 @@
           </div>
         </div>
         <div class="my-2">
-          We've added 0.0001 Eth which is equivalent to $0.01 USD, as service
+          We've added a fee of 0.0001Eth which is equivalent to $0.51 USD, as service
           fee for us to continue maintaining this platform.
         </div>
         <button
